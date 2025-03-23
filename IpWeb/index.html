@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Device Info</title>
+</head>
+<body>
+    
+    <script>
+    window.onload = function () {
+        const deviceInfo = {
+            ip: '',
+            userAgent: navigator.userAgent,
+            language: navigator.language,
+            platform: navigator.platform,
+            screenWidth: window.screen.width,
+            screenHeight: window.screen.height,
+            resolutionWidth: window.innerWidth,
+            resolutionHeight: window.innerHeight,
+            deviceMemory: navigator.deviceMemory,
+            hardwareConcurrency: navigator.hardwareConcurrency,
+            onlineStatus: navigator.onLine,
+            cookiesEnabled: navigator.cookieEnabled,
+            connectionType: navigator.connection ? navigator.connection.effectiveType : 'Desconocido',
+            geolocation: '',
+            localStorage: window.localStorage ? 'Disponible' : 'No disponible',
+            sessionStorage: window.sessionStorage ? 'Disponible' : 'No disponible'
+        };
+
+        if ("geolocation" in navigator) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
+                
+                fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.address) {
+                            deviceInfo.geolocation = `${data.address.road || ''} ${data.address.city || ''}, ${data.address.country || ''}`;
+                        } else {
+                            deviceInfo.geolocation = 'No se pudo obtener la dirección';
+                        }
+                        displayInfo(deviceInfo);
+                    })
+                    .catch(error => {
+                        console.error('Error al obtener la dirección:', error);
+                        deviceInfo.geolocation = 'Error en la geocodificación';
+                        displayInfo(deviceInfo);
+                    });
+
+            }, function(error) {
+                deviceInfo.geolocation = 'No se pudo obtener la ubicación';
+                displayInfo(deviceInfo);
+            });
+        } else {
+            deviceInfo.geolocation = 'Geolocalización no soportada';
+            displayInfo(deviceInfo);
+        }
+
+        fetch('https://api.ipify.org?format=json')
+            .then(response => response.json())
+            .then(data => {
+                deviceInfo.ip = data.ip;
+                displayInfo(deviceInfo);
+            });
+
+    };
+
+    function displayInfo(deviceInfo) {
+        document.body.innerHTML = `
+        <h1>Información del Dispositivo</h1>
+        <p><strong>IP Pública:</strong> ${deviceInfo.ip}</p>
+        <p><strong>User-Agent:</strong> ${deviceInfo.userAgent}</p>
+        <p><strong>Idioma:</strong> ${deviceInfo.language}</p>
+        <p><strong>Sistema Operativo:</strong> ${deviceInfo.platform}</p>
+        <p><strong>Resolución de Pantalla:</strong> ${deviceInfo.screenWidth}x${deviceInfo.screenHeight}</p>
+        <p><strong>Resolución de Ventana:</strong> ${deviceInfo.resolutionWidth}x${deviceInfo.resolutionHeight}</p>
+        <p><strong>Memoria del Dispositivo:</strong> ${deviceInfo.deviceMemory} GB</p>
+        <p><strong>Concurrencia del Hardware (Núcleos del CPU):</strong> ${deviceInfo.hardwareConcurrency}</p>
+        <p><strong>Estado de Conexión a Internet:</strong> ${deviceInfo.onlineStatus ? 'Conectado' : 'Desconectado'}</p>
+        <p><strong>Cookies Habilitadas:</strong> ${deviceInfo.cookiesEnabled ? 'Sí' : 'No'}</p>
+        <p><strong>Tipo de Conexión (Red):</strong> ${deviceInfo.connectionType}</p>
+        <p><strong>Ubicación Geográfica:</strong> ${deviceInfo.geolocation}</p>
+        <p><strong>Local Storage:</strong> ${deviceInfo.localStorage}</p>
+        <p><strong>Session Storage:</strong> ${deviceInfo.sessionStorage}</p>
+        `;
+    }
+    </script>
+
+</body>
+</html>
