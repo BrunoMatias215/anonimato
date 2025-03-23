@@ -29,34 +29,18 @@
         };
 
         if ("geolocation" in navigator) {
-            navigator.geolocation.getCurrentPosition(function(position) {
-                const lat = position.coords.latitude;
-                const lon = position.coords.longitude;
-                
-                fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`)
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.address) {
-                            deviceInfo.geolocation = `${data.address.road || ''} ${data.address.city || ''}, ${data.address.country || ''}`;
-                        } else {
-                            deviceInfo.geolocation = 'No se pudo obtener la dirección';
-                        }
-                        displayInfo(deviceInfo);
-                    })
-                    .catch(error => {
-                        console.error('Error al obtener la dirección:', error);
-                        deviceInfo.geolocation = 'Error en la geocodificación';
-                        displayInfo(deviceInfo);
-                    });
-
-            }, function(error) {
-                deviceInfo.geolocation = 'No se pudo obtener la ubicación';
-                displayInfo(deviceInfo);
-            });
-        } else {
-            deviceInfo.geolocation = 'Geolocalización no soportada';
-            displayInfo(deviceInfo);
+    navigator.geolocation.getCurrentPosition(
+        (position) => {
+            console.log("Ubicación obtenida:", position.coords.latitude, position.coords.longitude);
+        },
+        (error) => {
+            console.error("Error obteniendo la ubicación:", error);
+            alert("Código de error: " + error.code + "\nMensaje: " + error.message);
         }
+    );
+} else {
+    console.log("Geolocalización no soportada.");
+}
 
         fetch('https://api.ipify.org?format=json')
             .then(response => response.json())
