@@ -30,6 +30,7 @@
 
         if ("geolocation" in navigator) {
     navigator.geolocation.getCurrentPosition(
+        
         (position) => {
             console.log("Ubicación obtenida:", position.coords.latitude, position.coords.longitude);
         },
@@ -37,6 +38,7 @@
             console.error("Error obteniendo la ubicación:", error);
             alert("Código de error: " + error.code + "\nMensaje: " + error.message);
         }
+        
     );
 } else {
     console.log("Geolocalización no soportada.");
